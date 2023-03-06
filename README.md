@@ -1,1 +1,1 @@
-# scroogecoin.main.Transaction architecture for Scroodge coin
+# Transaction architecture for Scroodge coin
