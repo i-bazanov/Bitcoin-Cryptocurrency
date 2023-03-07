@@ -17,19 +17,12 @@ public class Crypto {
     public static boolean verifySignature(PublicKey pubKey, byte[] message, byte[] signature) {
         Signature sig = null;
         try {
-            sig = Signature.getInstance("SHA256withRSA");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        try {
-            sig.initVerify(pubKey);
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        }
-        try {
-            sig.update(message);
+            sig = Signature.getInstance("SHA256withRSA");   //NoSuchAlgorithmException e
+            sig.initVerify(pubKey);                            //InvalidKeyException e
+            sig.update(message);                               //SignatureException e
             return sig.verify(signature);
-        } catch (SignatureException e) {
+        } catch (Exception e) {
+            // add some error logger Logger.e(e, error when trying verify signature)
             e.printStackTrace();
         }
         return false;

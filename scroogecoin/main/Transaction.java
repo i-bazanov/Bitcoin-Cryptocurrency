@@ -18,18 +18,22 @@ public class Transaction {
         public byte[] signature;
 
         public Input(byte[] prevHash, int index) {
-            if (prevHash == null)
+            if (prevHash == null) {
                 prevTxHash = null;
-            else
+            }
+            else {
                 prevTxHash = Arrays.copyOf(prevHash, prevHash.length);
+            }
             outputIndex = index;
         }
 
         public void addSignature(byte[] sig) {
-            if (sig == null)
+            if (sig == null) {
                 signature = null;
-            else
+            }
+            else {
                 signature = Arrays.copyOf(sig, sig.length);
+            }
         }
     }
 
@@ -47,8 +51,8 @@ public class Transaction {
 
     /** hash of the transaction, its unique id */
     private byte[] hash;
-    private ArrayList<Input> inputs;
-    private ArrayList<Output> outputs;
+    private ArrayList<Input> inputs = null;
+    private ArrayList<Output> outputs = null;
 
     public Transaction() {
         inputs = new ArrayList<Input>();
@@ -76,11 +80,10 @@ public class Transaction {
     }
 
     public void removeInput(UTXO ut) {
-        for (int i = 0; i < inputs.size(); i++) {
-            Input in = inputs.get(i);
+        for (Input in: inputs) {
             UTXO u = new UTXO(in.prevTxHash, in.outputIndex);
             if (u.equals(ut)) {
-                inputs.remove(i);
+                inputs.remove(in);
                 return;
             }
         }
@@ -88,34 +91,44 @@ public class Transaction {
 
     public byte[] getRawDataToSign(int index) {
         // ith input and all outputs
-        ArrayList<Byte> sigData = new ArrayList<Byte>();
-        if (index > inputs.size())
+        if (index > inputs.size()) {
             return null;
-        Input in = inputs.get(index);
-        byte[] prevTxHash = in.prevTxHash;
-        ByteBuffer b = ByteBuffer.allocate(Integer.SIZE / 8);
-        b.putInt(in.outputIndex);
-        byte[] outputIndex = b.array();
-        if (prevTxHash != null)
-            for (int i = 0; i < prevTxHash.length; i++)
-                sigData.add(prevTxHash[i]);
-        for (int i = 0; i < outputIndex.length; i++)
-            sigData.add(outputIndex[i]);
-        for (Output op : outputs) {
-            ByteBuffer bo = ByteBuffer.allocate(Double.SIZE / 8);
-            bo.putDouble(op.value);
-            byte[] value = bo.array();
-            byte[] addressBytes = op.address.getEncoded();
-            for (int i = 0; i < value.length; i++)
-                sigData.add(value[i]);
-
-            for (int i = 0; i < addressBytes.length; i++)
-                sigData.add(addressBytes[i]);
         }
+        ArrayList<Byte> sigData = new ArrayList<Byte>();
+        Input in = inputs.get(index);
+
+        byte[] prevTxHash = in.prevTxHash;
+        byte[] outputIndex = ByteBuffer.allocate(Integer.BYTES)
+                .putInt(in.outputIndex)
+                .array();
+
+        if (prevTxHash != null) {
+            for(byte _byte: prevTxHash) {
+                sigData.add(_byte);
+            }
+        }
+        for(byte _byte: outputIndex) {
+            sigData.add(_byte);
+        }
+        for (Output op : outputs) {
+            byte[] value = ByteBuffer.allocate(Double.BYTES)
+                    .putDouble(op.value)
+                    .array();
+            byte[] addressBytes = op.address.getEncoded();
+
+            for(byte _byte: value) {
+                sigData.add(_byte);
+            }
+            for(byte _byte: addressBytes) {
+                sigData.add(_byte);
+            }
+        }
+
         byte[] sigD = new byte[sigData.size()];
         int i = 0;
-        for (Byte sb : sigData)
+        for (Byte sb : sigData) {
             sigD[i++] = sb;
+        }
         return sigD;
     }
 
@@ -125,38 +138,47 @@ public class Transaction {
 
     public byte[] getRawTx() {
         ArrayList<Byte> rawTx = new ArrayList<Byte>();
+
         for (Input in : inputs) {
             byte[] prevTxHash = in.prevTxHash;
-            ByteBuffer b = ByteBuffer.allocate(Integer.SIZE / 8);
-            b.putInt(in.outputIndex);
-            byte[] outputIndex = b.array();
+            byte[] outputIndex = ByteBuffer.allocate(Integer.BYTES)
+                    .putInt(in.outputIndex)
+                    .array();
             byte[] signature = in.signature;
-            if (prevTxHash != null)
-                for (int i = 0; i < prevTxHash.length; i++)
-                    rawTx.add(prevTxHash[i]);
-            for (int i = 0; i < outputIndex.length; i++)
-                rawTx.add(outputIndex[i]);
-            if (signature != null)
-                for (int i = 0; i < signature.length; i++)
-                    rawTx.add(signature[i]);
+
+            if (prevTxHash != null) {
+                for(byte _byte: prevTxHash) {
+                    rawTx.add(_byte);
+                }
+            }
+            for(byte _byte: outputIndex) {
+                rawTx.add(_byte);
+            }
+            if (signature != null) {
+                for(byte _byte: signature) {
+                    rawTx.add(_byte);
+                }
+            }
         }
         for (Output op : outputs) {
-            ByteBuffer b = ByteBuffer.allocate(Double.SIZE / 8);
-            b.putDouble(op.value);
-            byte[] value = b.array();
+            byte[] value = ByteBuffer.allocate(Double.BYTES)
+                    .putDouble(op.value)
+                    .array();
             byte[] addressBytes = op.address.getEncoded();
-            for (int i = 0; i < value.length; i++) {
-                rawTx.add(value[i]);
-            }
-            for (int i = 0; i < addressBytes.length; i++) {
-                rawTx.add(addressBytes[i]);
-            }
 
+            for(byte _byte: value) {
+                rawTx.add(_byte);
+            }
+            for(byte _byte: addressBytes) {
+                rawTx.add(_byte);
+            }
         }
+
         byte[] tx = new byte[rawTx.size()];
         int i = 0;
-        for (Byte b : rawTx)
+        for (Byte b : rawTx) {
             tx[i++] = b;
+        }
         return tx;
     }
 
