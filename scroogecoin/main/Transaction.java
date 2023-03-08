@@ -51,8 +51,8 @@ public class Transaction {
 
     /** hash of the transaction, its unique id */
     private byte[] hash;
-    private ArrayList<Input> inputs = null;
-    private ArrayList<Output> outputs = null;
+    private ArrayList<Input> inputs;
+    private ArrayList<Output> outputs;
 
     public Transaction() {
         inputs = new ArrayList<Input>();

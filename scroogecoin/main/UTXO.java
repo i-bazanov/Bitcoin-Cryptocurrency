@@ -33,6 +33,7 @@ public class UTXO implements Comparable<UTXO> {
      * Compares this scroogecoin.main.UTXO to the one specified by {@code other}, considering them equal if they have
      * {@code txHash} arrays with equal contents and equal {@code index} values
      */
+    @Override
     public boolean equals(Object other) {
         if (other == null) {
             return false;
@@ -43,22 +44,18 @@ public class UTXO implements Comparable<UTXO> {
 
         UTXO utxo = (UTXO) other;
         byte[] hash = utxo.txHash;
-        int in = utxo.index;
-        if (hash.length != txHash.length || index != in) {
+        int index = utxo.index;
+        if (this.index != index) {
             return false;
         }
-        for (int i = 0; i < hash.length; i++) {
-            if (hash[i] != txHash[i]) {
-                return false;
-            }
-        }
-        return true;
+        return Arrays.equals(hash, txHash);
     }
 
     /**
      * Simple implementation of a scroogecoin.main.UTXO hashCode that respects equality of UTXOs // (i.e.
      * utxo1.equals(utxo2) => utxo1.hashCode() == utxo2.hashCode())
      */
+    @Override
     public int hashCode() {
         int hash = 1;
         hash = hash * 17 + index;
@@ -67,13 +64,14 @@ public class UTXO implements Comparable<UTXO> {
     }
 
     /** Compares this scroogecoin.main.UTXO to the one specified by {@code utxo} */
+    @Override
     public int compareTo(UTXO utxo) {
         byte[] hash = utxo.txHash;
-        int in = utxo.index;
-        if (in > index) {
+        int index = utxo.index;
+        if (index > this.index) {
             return -1;
         }
-        else if (in < index) {
+        else if (index < this.index) {
             return 1;
         }
         else {

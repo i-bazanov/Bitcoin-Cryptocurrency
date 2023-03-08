@@ -1,6 +1,7 @@
 package scroogecoin.main;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -92,45 +93,27 @@ public class TxHandler {
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
         ArrayList<Transaction> rawCorrectTxs = new ArrayList<>();
-        Set<UTXO> utxoSet = new HashSet<>();
-        boolean isDoubleSpending = false;
 
         for(Transaction tx: possibleTxs) {
-            if(isValidTx(tx)){
-                for(Transaction.Input input: tx.getInputs()) {
+            if(isValidTx(tx)) {
+                rawCorrectTxs.add(tx);
+
+                for (int i = 0; i < tx.numOutputs(); ++i) {
+                    UTXO claimedUTXO = new UTXO(tx.getHash(), i);
+                    claimedUTXOPool.addUTXO(claimedUTXO, tx.getOutput(i));
+                }
+
+                for (int i = 0; i < tx.numInputs(); ++i) {
+                    Transaction.Input input = tx.getInput(i);
                     UTXO claimedUTXO = new UTXO(input.prevTxHash, input.outputIndex);
-                    if(utxoSet.contains(claimedUTXO)) {
-                        //Double spending
-                        isDoubleSpending = true;
-                        break;
-                    }
-                }
-
-                if(isDoubleSpending) {
-                    isDoubleSpending = false;
-                }
-                else {
-                    rawCorrectTxs.add(tx);
-
-                    for(int i = 0; i < tx.numOutputs(); ++i) {
-                        UTXO claimedUTXO = new UTXO(tx.getHash(), i);
-                        claimedUTXOPool.addUTXO(claimedUTXO, tx.getOutput(i));
-                    }
-
-                    for(int i = 0; i < tx.numInputs(); ++i) {
-                        Transaction.Input input = tx.getInput(i);
-                        UTXO claimedUTXO = new UTXO(input.prevTxHash, input.outputIndex);
-                        claimedUTXOPool.removeUTXO(claimedUTXO);
-                    }
+                    claimedUTXOPool.removeUTXO(claimedUTXO);
                 }
             }
         }
 
-        Transaction[] correctTxs = new Transaction[rawCorrectTxs.size()];
-        int i = 0;
-        for (Transaction tx : rawCorrectTxs) {
-            correctTxs[i++] = tx;
-        }
+        Transaction[] correctTxs = Arrays.stream(rawCorrectTxs.toArray())
+                                        .map(o -> (Transaction) o)
+                                        .toArray(Transaction[]::new);
 
         return correctTxs;
     }

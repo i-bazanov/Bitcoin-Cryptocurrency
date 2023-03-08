@@ -47,10 +47,7 @@ public class UTXOPool {
     /** Returns an {@code ArrayList} of all UTXOs in the pool */
     public ArrayList<UTXO> getAllUTXO() {
         Set<UTXO> setUTXO = H.keySet();
-        ArrayList<UTXO> allUTXO = new ArrayList<UTXO>();
-        for (UTXO ut : setUTXO) {
-            allUTXO.add(ut);
-        }
+        ArrayList<UTXO> allUTXO = new ArrayList<UTXO>(setUTXO);
         return allUTXO;
     }
 }
