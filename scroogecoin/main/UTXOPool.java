@@ -50,4 +50,4 @@ public class UTXOPool {
         ArrayList<UTXO> allUTXO = new ArrayList<UTXO>(setUTXO);
         return allUTXO;
     }
-}
+} 
