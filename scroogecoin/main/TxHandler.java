@@ -97,17 +97,7 @@ public class TxHandler {
         for(Transaction tx: possibleTxs) {
             if(isValidTx(tx)) {
                 rawCorrectTxs.add(tx);
-
-                for (int i = 0; i < tx.numOutputs(); ++i) {
-                    UTXO claimedUTXO = new UTXO(tx.getHash(), i);
-                    claimedUTXOPool.addUTXO(claimedUTXO, tx.getOutput(i));
-                }
-
-                for (int i = 0; i < tx.numInputs(); ++i) {
-                    Transaction.Input input = tx.getInput(i);
-                    UTXO claimedUTXO = new UTXO(input.prevTxHash, input.outputIndex);
-                    claimedUTXOPool.removeUTXO(claimedUTXO);
-                }
+                updateUTXOPool(tx);
             }
         }
 
@@ -116,5 +106,18 @@ public class TxHandler {
                                         .toArray(Transaction[]::new);
 
         return correctTxs;
+    }
+
+    private void updateUTXOPool(Transaction tx) {
+        for (int i = 0; i < tx.numOutputs(); ++i) {
+            UTXO claimedUTXO = new UTXO(tx.getHash(), i);
+            claimedUTXOPool.addUTXO(claimedUTXO, tx.getOutput(i));
+        }
+
+        for (int i = 0; i < tx.numInputs(); ++i) {
+            Transaction.Input input = tx.getInput(i);
+            UTXO claimedUTXO = new UTXO(input.prevTxHash, input.outputIndex);
+            claimedUTXOPool.removeUTXO(claimedUTXO);
+        }
     }
 }
