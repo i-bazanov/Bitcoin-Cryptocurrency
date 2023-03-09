@@ -78,7 +78,7 @@ public class Transaction {
     public void removeInput(int index) {
         inputs.remove(index);
     }
-
+    //TODO test for big size array - there is the danger of catching ConcurrentModificationException
     public void removeInput(UTXO ut) {
         for (Input in: inputs) {
             UTXO u = new UTXO(in.prevTxHash, in.outputIndex);
@@ -87,6 +87,19 @@ public class Transaction {
                 return;
             }
         }
+        //Without array modification in loop
+        //Input targetIn = null;
+        //for (Input in: inputs) {
+        //    UTXO u = new UTXO(in.prevTxHash, in.outputIndex);
+        //    if (u.equals(ut)) {
+        //        targetIn = in;
+        //        break;
+        //    }
+        //}
+        //
+        //if (targetIn != null) {
+        //    inputs.remove(targetIn);
+        //}
     }
 
     public byte[] getRawDataToSign(int index) {
@@ -96,6 +109,9 @@ public class Transaction {
         }
         ArrayList<Byte> sigData = new ArrayList<Byte>();
         Input in = inputs.get(index);
+        if(in == null) {
+            return null;
+        }
 
         byte[] prevTxHash = in.prevTxHash;
         byte[] outputIndex = ByteBuffer.allocate(Integer.BYTES)
